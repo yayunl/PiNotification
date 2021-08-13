@@ -18,8 +18,6 @@ port = 12333
 s.bind((host, port))
 s.listen(5)
 
-  
-
 # Configuration for CS and DC pins (these are FeatherWing defaults on M0/M4):
 cs_pin = digitalio.DigitalInOut(board.CE0)
 dc_pin = digitalio.DigitalInOut(board.D25)
@@ -27,7 +25,7 @@ reset_pin = None
 
 # Config for display baudrate (default max is 24mhz):
 BAUDRATE = 64000000
-FONT_SIZE= 5
+FONT_SIZE = 10
 chunk_size = 5 # How many projects displayed on a single screen
 refresh_interval = 60  # secs
 

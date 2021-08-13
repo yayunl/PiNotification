@@ -6,13 +6,13 @@ from ssh_operation import SSH_Connection
 from config_local import Settings, Projects
 
 
-def start_server_on_pi():
+def server_started_on_pi():
 
     ssh = SSH_Connection(Settings.TARGET_SERVER_IP, user='pi', passw='pi')
+    netstat_cmd = 'sudo netstat -tupln | grep 0.0.0.0:12333'
     if ssh.connect():
         ssh_ch = ssh.invoke_shell()
-        cmd = 'sudo netstat -tupln | grep 0.0.0.0:12333'
-        out, err = ssh.send(ssh_ch, cmd)
+        out, err = ssh.send(ssh_ch, netstat_cmd)
         process = None
         if not err:
             try:
@@ -26,15 +26,14 @@ def start_server_on_pi():
                 kill_cmd = f'kill -9 {process}'
                 print(f"Attempt kill the process with cmd => {kill_cmd}")
                 out, err = ssh.send(ssh_ch, kill_cmd)
-                if not err:
-                    print("Starting the server on Pi 4...")
-                    out, err = ssh.send(ssh_ch, 'nohup ./socket_server/run_socket_server.sh $> ./socket_server/runlog.txt')
-                    print(out)
-                else:
-                    print("Failed to kill the process.")
-            else:
-                print("Cannot find the process.")
-    print("The Server serivce started on pi.")
+
+            print("Starting the server on Pi 4...")
+            out, err = ssh.send(ssh_ch, 'nohup ./socket_server/run_socket_server.sh $> ./socket_server/runlog.txt')
+
+            if not err:
+                return True
+
+    return False
 
 
 def run(jession_id, compare_record_interval, flash_interval):
@@ -78,29 +77,30 @@ def run(jession_id, compare_record_interval, flash_interval):
 
 if __name__ == '__main__':
     # Start the sever side application first.
-    start_server_on_pi()
+    if server_started_on_pi():
 
-    # Make sure you have the updated jession id.
-    print("Make sure you have the updated jession id.")
-    flash_interval = input(f"Refresh interval in secs. (>= 15s) (default {Settings.REPORT_REFLASH_INTERVAL_IN_SECS}s): ")
-    try:
-        flash_interval = int(flash_interval)
-    except:
-        print("Invalid refresh interval. Must be a integer. Use default instead.")
-        flash_interval = Settings.REPORT_REFLASH_INTERVAL_IN_SECS
+        # Make sure you have the updated jession id.
+        print("Make sure you have the updated jession id.")
+        flash_interval = input(f"Refresh interval in secs. (>= 15s) (default {Settings.REPORT_REFLASH_INTERVAL_IN_SECS}s): ")
+        try:
+            flash_interval = int(flash_interval)
+        except:
+            print("Invalid refresh interval. Must be a integer. Use default instead.")
+            flash_interval = Settings.REPORT_REFLASH_INTERVAL_IN_SECS
 
 
-    # Prompt for inputs
-    jession_id=input("JESSION ID: ") or Settings.JESSION_ID
+        # Prompt for inputs
+        jession_id=input("JESSION ID: ") or Settings.JESSION_ID
 
-    compare_with_record_of_time_ago_raw = input(f"Compare with the record of (secs,mins,hours,days) ago. Default is {Settings.COMPARE_WITH_RECORD_OF_N_HOUR_AGO}: ")
+        compare_with_record_of_time_ago_raw = input(f"Compare with the record of (secs,mins,hours,days) ago. Default is {Settings.COMPARE_WITH_RECORD_OF_N_HOUR_AGO}: ")
 
-    # Run
-    if compare_with_record_of_time_ago_raw:
-        compare_with_record_of_time_ago_input = [int(t.strip('')) for t in compare_with_record_of_time_ago_raw.split(',')]
-    else:
-        compare_with_record_of_time_ago_input = Settings.COMPARE_WITH_RECORD_OF_N_HOUR_AGO
+        # Run
+        if compare_with_record_of_time_ago_raw:
+            compare_with_record_of_time_ago_input = [int(t.strip('')) for t in compare_with_record_of_time_ago_raw.split(',')]
+        else:
+            compare_with_record_of_time_ago_input = Settings.COMPARE_WITH_RECORD_OF_N_HOUR_AGO
 
-    run(jession_id, compare_with_record_of_time_ago_input, flash_interval)
+        run(jession_id, compare_with_record_of_time_ago_input, flash_interval)
 
+    print("Please make sure the remote server on Pi starts before running the client app.")
 
