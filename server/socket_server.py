@@ -148,7 +148,7 @@ with conn:
         else:
             try:
                 chunk_cnt = len(data) % chunk_size
-                sleep_period = refresh_interval % chunk_cnt
+                sleep_period = 7 if (refresh_interval % chunk_cnt) < 7 else refresh_interval % chunk_cnt
 
                 for chunk in range(0,len(data), chunk_size):
                     _display(data[chunk: chunk+chunk_size])# Display the `chunk_size` amount of items
