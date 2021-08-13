@@ -25,7 +25,7 @@ reset_pin = None
 
 # Config for display baudrate (default max is 24mhz):
 BAUDRATE = 64000000
-FONT_SIZE = 10
+FONT_SIZE = 12
 chunk_size = 5 # How many projects displayed on a single screen
 refresh_interval = 60  # secs
 
@@ -88,9 +88,8 @@ def _display(data_list):
         for project, vals in project_dict.items():
             # Shell scripts for system monitoring from here:
             # https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-            proj = f"Project: {project} ({vals.get('total')})"
+            proj = f"{project}: ({vals.get('total')}) {vals.get('draft_and_submit')}"
 
-            draft_and_submit = vals.get('draft_and_submit')
             analyze_and_clarify = vals.get('analyze_and_clarify')
             review_and_verify = vals.get('review_and_verify')
 
@@ -106,8 +105,8 @@ def _display(data_list):
             draw.text((x, y), proj, font=font, fill="#FFFFFF")
             y += font.getsize(proj)[1]
 
-            draw.text((x, y), draft_and_submit, font=font, fill="#FFFF00")
-            y += font.getsize(draft_and_submit)[1]
+            # draw.text((x, y), draft_and_submit, font=font, fill="#FFFF00")
+            # y += font.getsize(draft_and_submit)[1]
 
             # Green
             draw.text((x, y), analyze_and_clarify, font=font, fill="#00FF00")
