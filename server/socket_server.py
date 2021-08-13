@@ -27,6 +27,9 @@ reset_pin = None
 
 # Config for display baudrate (default max is 24mhz):
 BAUDRATE = 64000000
+FONT_SIZE= 5
+chunk_size = 5 # How many projects displayed on a single screen
+refresh_interval = 60  # secs
 
 # Setup SPI bus using hardware SPI:
 spi = board.SPI()
@@ -69,7 +72,7 @@ x = 0
 # Alternatively load a TTF font.  Make sure the .ttf font file is in the
 # same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONT_SIZE)
 
 # Turn on the backlight
 backlight = digitalio.DigitalInOut(board.D22)
@@ -133,8 +136,7 @@ recved, data = None, None
 
 with conn:
     # Display four items in one screen
-    refresh_interval = 15 # secs
-    chunk_size = 4
+
     while True:
         recved = conn.recv(1024)
         try:
@@ -148,7 +150,7 @@ with conn:
         else:
             try:
                 chunk_cnt = len(data) % chunk_size
-                sleep_period = 7 if (refresh_interval % chunk_cnt) < 7 else refresh_interval % chunk_cnt
+                sleep_period = 60 % 2
 
                 for chunk in range(0,len(data), chunk_size):
                     _display(data[chunk: chunk+chunk_size])# Display the `chunk_size` amount of items

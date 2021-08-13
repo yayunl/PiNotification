@@ -30,8 +30,8 @@ class JIRA_API:
     def _compare_time_start_end(self, delta):
         sec, min, hour, day = delta
         current_time = dt.datetime.now()
-        start_time = current_time - dt.timedelta(seconds=sec, minutes=min, hours=hour, days=day)
-        end_time = start_time + dt.timedelta(hours=1)
+        start_time = current_time - dt.timedelta(seconds=sec, minutes=min, hours=hour+5, days=day)
+        end_time = start_time + dt.timedelta(hours=5)
         return start_time, end_time
 
 
@@ -109,7 +109,7 @@ class JIRA_API:
                                                           'date': {'$lt':  end_time,
                                                                    '$gte': start_time }
                                                           },
-                                                         sort=[('_id', pymongo.DESCENDING)])
+                                                         sort=[('_id', pymongo.ASCENDING)])
             arrow = ""
             if not latest_compare_record:
                 # The first record
