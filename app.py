@@ -11,7 +11,7 @@ def start_server_on_pi():
     ssh = SSH_Connection(Settings.TARGET_SERVER_IP, user='pi', passw='pi')
     if ssh.connect():
         ssh_ch = ssh.invoke_shell()
-        out, err = ssh.send(ssh_ch, 'nohup ./socket_server/run_socket_server.sh')
+        out, err = ssh.send(ssh_ch, 'nohup ./socket_server/run_socket_server.sh $')
         print(out)
     print("Server started on pi.")
 
@@ -57,7 +57,7 @@ def run(jession_id, compare_record_interval, flash_interval):
 
 if __name__ == '__main__':
     # Start the sever side application first.
-    start_server_on_pi()
+    # start_server_on_pi()
 
     # Make sure you have the updated jession id.
     print("Make sure you have the updated jession id.")

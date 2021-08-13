@@ -29,8 +29,9 @@ class JIRA_API:
 
     def _compare_time_start_end(self, delta):
         sec, min, hour, day = delta
-        end_time = dt.datetime.now()
-        start_time = end_time - dt.timedelta(seconds=sec, minutes=min, hours=hour, days=day)
+        current_time = dt.datetime.now()
+        start_time = current_time - dt.timedelta(seconds=sec, minutes=min, hours=hour, days=day)
+        end_time = start_time + dt.timedelta(hours=1)
         return start_time, end_time
 
 
