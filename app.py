@@ -3,7 +3,7 @@ import socket, pprint as pp
 import time
 from utils import pull_reports
 from ssh_operation import SSH_Connection
-from config import Settings, Projects
+from config_local import Settings, Projects
 
 
 def start_server_on_pi():
@@ -42,8 +42,8 @@ def run(jession_id, compare_record_interval, flash_interval):
                     t1 = time.time()  # Reset timer
                     # Pull the reports
                     data, error = pull_reports(JESSION_id=jession_id,
-                                                     compare_with_record_n_sec_min_hour_day_ago=compare_record_interval,
-                                                     save_to_db_every_n_hours=1)
+                                               compare_with_record_n_sec_min_hour_day_ago=compare_record_interval,
+                                               save_to_db_every_n_hours=1)
                     if not error:
                         print("Send a new report...")
                         pp.pprint(data)
@@ -52,18 +52,27 @@ def run(jession_id, compare_record_interval, flash_interval):
             # time.sleep(3)
             # s.sendall(b'bye')
     else:
-        print("Make sure you have the updated jession id.")
+        print("Failed to pull report from JIRA. Make sure you have the updated jession id.")
 
 
 if __name__ == '__main__':
+    # Start the sever side application first.
     start_server_on_pi()
 
     # Make sure you have the updated jession id.
     print("Make sure you have the updated jession id.")
+    flash_interval = input("Refresh interval in secs. (>= 15s) (default 15s): ")
+    try:
+        flash_interval = int(flash_interval)
+    except:
+        print("Invalid refresh interval. Must be a integer. Use default instead.")
+        flash_interval = Settings.REPORT_REFLASH_INTERVAL_IN_SECS
+
+
     # Prompt for inputs
     jession_id=input("JESSION ID: ") or Settings.JESSION_ID
-    flash_interval = input("Refresh interval(sec) (default 15s): ") or Settings.REPORT_REFLASH_INTERVAL_IN_SECS
-    compare_with_record_of_time_ago_raw = input("Compare with the record of (secs,mins,hours,days) ago. Default is 60 mins (0,60,0,0) ago: ")
+
+    compare_with_record_of_time_ago_raw = input("Compare with the record of (secs,mins,hours,days) ago. Default is 1 day (0,0,0,1) ago: ")
 
     # Run
     if compare_with_record_of_time_ago_raw:

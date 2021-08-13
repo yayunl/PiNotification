@@ -2,7 +2,7 @@ import requests, urllib3, datetime as dt
 import pymongo, pprint, json
 from pymongo import MongoClient
 from collections import defaultdict
-from config import Projects, Settings
+from config_local import Projects, Settings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 mongo_client = MongoClient('localhost', 27017)
@@ -151,7 +151,8 @@ class JIRA_API:
             result_strings['review_and_verify'] = status_report['Review'] + status_report['Verify'] + status_report['Closed']
             result_strings['total'] = status_report['total']
 
-            pprint.pprint(result_strings)
+            # print(f"Project => {project_name}")
+            # pprint.pprint(result_strings)
             return result_strings, False
         return None, True
 
@@ -160,7 +161,7 @@ def pull_reports(JESSION_id,
                  compare_with_record_n_sec_min_hour_day_ago,
                  save_to_db_every_n_hours):
     """
-    Pull the reports via JIRA API and save the results in a dict with key-value (key=project_name, value=report)
+    Pull the reports via JIRA API and return the results of a list of dicts. dict(key=project_name, value=report)
     :param JESSION_id:
     :param compare_with_record_n_sec_min_hour_day_ago:
     :param save_to_db_every_n_hours:
@@ -169,13 +170,13 @@ def pull_reports(JESSION_id,
 
     api = JIRA_API(JESSION_id)
     errors = False
-    reports = dict()
+    reports = list()
     for vendor, projects in Projects.VENDOR_PROJECTS.items():
         for project in projects:
             pull_uri = Settings.JIRA_PROJECT_API_URI(vendor=vendor, project=project)
             report, error = api.report_to_send(pull_uri, project, compare_with_record_n_sec_min_hour_day_ago, save_to_db_every_n_hours)
             errors = errors and error
-            reports[project] = report
+            reports.append({project: report})
 
     data = json.dumps(reports)
     return data, errors
